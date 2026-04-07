@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "luxify-postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgres://postgres:postgres@localhost:5433/clothesdb?sslmode=disable"
+      ]
+    }
+  }
+}

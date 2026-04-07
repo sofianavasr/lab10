@@ -1,0 +1,28 @@
+---
+description: Enforce TDD-first development workflow with QA validation
+alwaysApply: true
+---
+# Development Workflow
+
+For every feature, bug fix, or behavior-changing modification, follow this order:
+
+1. **TDD First**
+   - Read and follow `.cursor/skills/defining-tdd-workflow/SKILL.md` before implementing.
+   - Define test cases from requirements.
+   - Write or update failing tests first, then implement until tests pass.
+
+2. **Implement With Project Conventions**
+   - Follow all rules in `.cursor/rules/go-conventions.mdc` while coding.
+   - Respect layered architecture (`handler -> service -> repository`) and keep business logic out of handlers.
+   - Keep error handling, logging, SQL safety, and API conventions aligned with project standards.
+
+3. **Review With Code Reviewer Subagent**
+   - After implementation, delegate a review to the `code-reviewer` subagent in `.cursor/agents/code-reviewer.md`.
+   - Address critical issues found in the review before moving to final test validation.
+
+4. **Delegate Validation to QA Subagent**
+   - After implementation, delegate testing to the `qa-engineer` subagent in `.cursor/agents/qa-engineer.md`.
+   - Run full unit and e2e/integration coverage through that subagent workflow.
+   - Require a detailed pass/fail report; if failures exist, include reasons and fix before considering work complete.
+
+Do not skip or reorder these steps unless the user explicitly requests a different process.

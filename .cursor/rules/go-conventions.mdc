@@ -1,0 +1,35 @@
+---
+alwaysApply: true
+---
+# Go Conventions
+
+## Architecture
+
+- Layered architecture: handler -> service -> repository. Never skip layers.
+- `internal/` packages are private to this module. Use `cmd/` only for entry points.
+
+## Database
+
+- Use pgx for PostgreSQL connections.
+- Use sqlc to generate type-safe query code from SQL. Write queries in `sqlc/queries.sql`.
+- Migrations go in `migrations/` using golang-migrate format: `NNN_description.up.sql` / `.down.sql`.
+- Always use parameterized queries (`$1`, `$2`). Never interpolate user input into SQL.
+
+## Error Handling
+
+- Return errors, never panic in library/service code.
+- Wrap errors with context: `fmt.Errorf("doing something: %w", err)`.
+- Handlers should log internal details but return generic messages to clients.
+
+## Style
+
+- Use `context.Context` as the first parameter in service and repository methods.
+- Use `log/slog` for structured logging. No `fmt.Println` or `log.Println`.
+- Prefer named return values only when it improves readability.
+- Table-driven tests with `t.Run()` sub-tests.
+- Keep functions under 50 lines. Extract helpers when complexity grows.
+
+## Config
+
+- All configuration via environment variables. Never hardcode secrets.
+- `.env.example` documents every required variable.
