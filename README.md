@@ -38,6 +38,8 @@ The app always returns exactly 3 clothing items:
    - `make migrate-up`
 5. Generate sqlc code (after editing queries):
    - `make sqlc`
+6. Seed sample data (600 rows):
+   - `make seed`
 
 ## Run
 
@@ -54,7 +56,8 @@ Output is a JSON array with exactly 3 items (`tops`, `bottoms`, `shoes`).
 - `make lint` - golangci-lint
 - `make staticcheck` - staticcheck
 - `go test ./...` - run unit tests
-- `go test ./cmd/clothes-cli ./internal/config ./internal/llm ./internal/repository ./internal/service -coverprofile=coverage.out`
+- `go test ./cmd/clothes-cli ./cmd/seed-clothes ./internal/config ./internal/llm ./internal/repository ./internal/service -coverprofile=coverage.out`
+- `make seed` - insert 600 sample clothes rows
 
 ## Database notes
 
@@ -63,5 +66,14 @@ The `clothes` table is created in `migrations/001_create_clothes_table.up.sql` w
 - `category`
 - `style`
 - `weather`
+
+The seed command (`go run ./cmd/seed-clothes` or `make seed`) inserts 600 rows and guarantees every `(category, style, weather)` combination appears at least once (90 unique triples total), while assigning random valid colors.
+
+Running the seed command multiple times appends more rows. To reseed from scratch, clear the table first:
+
+```bash
+psql "$DATABASE_URL" -c "TRUNCATE TABLE clothes RESTART IDENTITY;"
+make seed
+```
 
 Use `make migrate-down` to rollback one migration.

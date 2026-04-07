@@ -4,7 +4,7 @@ export
 APP_NAME=clothes-cli
 MIGRATIONS_DIR=./migrations
 
-.PHONY: fmt vet test coverage lint staticcheck check sqlc migrate-up migrate-down migrate-create docker-up docker-down
+.PHONY: fmt vet test coverage lint staticcheck check sqlc migrate-up migrate-down migrate-create docker-up docker-down seed
 
 fmt:
 	gofmt -w $$(go list -f '{{.Dir}}' ./...)
@@ -45,3 +45,6 @@ docker-up:
 
 docker-down:
 	docker compose down
+
+seed:
+	go run ./cmd/seed-clothes
