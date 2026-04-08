@@ -14,7 +14,7 @@ SELECT id, name, price, color, category, style, weather, created_at, updated_at 
 WHERE category = $1
   AND style = $2
   AND weather = $3
-ORDER BY id
+ORDER BY random()
 LIMIT 1
 `
 

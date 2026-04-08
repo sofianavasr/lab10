@@ -44,7 +44,7 @@ The app always returns exactly 3 clothing items:
 ## Run
 
 ```bash
-go run ./cmd/clothes-cli "I want to wear a casual outfit for a day out in cdmx"
+make run ARGS="I want to wear a casual outfit for a day out in cdmx"
 ```
 
 Output is a JSON array with exactly 3 items (`tops`, `bottoms`, `shoes`).
@@ -57,6 +57,7 @@ Output is a JSON array with exactly 3 items (`tops`, `bottoms`, `shoes`).
 - `make staticcheck` - staticcheck
 - `go test ./...` - run unit tests
 - `go test ./cmd/clothes-cli ./cmd/seed-clothes ./internal/config ./internal/llm ./internal/repository ./internal/service -coverprofile=coverage.out`
+- `make run ARGS="..."` - run the CLI with a prompt
 - `make seed` - insert 600 sample clothes rows
 
 ## Database notes

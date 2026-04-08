@@ -82,12 +82,12 @@ func run(ctx context.Context, args []string, out io.Writer, rec llm.Recommender)
 		return fmt.Errorf("generate recommendations: %w", err)
 	}
 
-	payload, err := json.Marshal(items)
+	payload, err := json.MarshalIndent(items, "", "  ")
 	if err != nil {
 		return fmt.Errorf("marshal recommendations: %w", err)
 	}
 
-	if _, err := out.Write(payload); err != nil {
+	if _, err := out.Write(append([]byte("Te recomiendo usar los siguientes items: \n"), payload...)); err != nil {
 		return fmt.Errorf("write output: %w", err)
 	}
 	return nil
