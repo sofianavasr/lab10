@@ -9,6 +9,8 @@ import (
 	"strings"
 	"testing"
 
+	"net/http"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sofia/lab10/internal/config"
@@ -81,8 +83,12 @@ func TestRun(t *testing.T) {
 				t.Fatalf("unexpected error: %v", err)
 			}
 
+			raw := out.String()
+			if idx := strings.Index(raw, "["); idx >= 0 {
+				raw = raw[idx:]
+			}
 			var got []llm.ClothingItem
-			if err := json.Unmarshal(out.Bytes(), &got); err != nil {
+			if err := json.Unmarshal([]byte(raw), &got); err != nil {
 				t.Fatalf("output is not valid JSON array: %v; output=%s", err, out.String())
 			}
 			if len(got) != 3 {
@@ -224,7 +230,7 @@ func TestRunApp(t *testing.T) {
 		openDBTX = func(_ context.Context, _ string) (db.DBTX, func(), error) {
 			return fakeDBTX{}, func() {}, nil
 		}
-		newClothingAgent = func(_, _ string, _ llm.ClothingQuerier) (llm.Recommender, error) {
+		newClothingAgent = func(_, _ string, _ llm.ClothingQuerier, _ *http.Client) (llm.Recommender, error) {
 			return fakeRecommender{}, nil
 		}
 

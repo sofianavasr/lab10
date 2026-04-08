@@ -1,6 +1,6 @@
 # Lab10 Clothes Recommender (Go + Postgres + LangChainGo)
 
-CLI application that recommends an outfit from a PostgreSQL `clothes` table using natural-language input.
+CLI application that recommends an outfit from a PostgreSQL `clothes` table using natural-language input. The LLM can call a **weather tool** backed by [Open-Meteo](https://open-meteo.com/) (geocoding + current conditions) so recommendations can match real conditions for a named city when you mention one.
 
 The app always returns exactly 3 clothing items:
 - 1 `tops`
@@ -48,6 +48,21 @@ make run ARGS="I want to wear a casual outfit for a day out in cdmx"
 ```
 
 Output is a JSON array with exactly 3 items (`tops`, `bottoms`, `shoes`).
+
+## Weather API usage
+
+The clothing agent exposes a `get_weather` tool that resolves a city to coordinates and reads current temperature, WMO weather code, and wind speed from Open-Meteo’s public endpoints (no API key; see [Open-Meteo API](https://open-meteo.com/en/docs)). The tool returns a short line such as `weather: rainy, temperature: 18.5°C`. The model maps that to one of the database `weather` values (`cold`, `hot`, `rainy`, `snowy`, `windy`, `humid`) when calling `search_clothing`.
+
+**Requirements:** outbound HTTPS to `geocoding-api.open-meteo.com` and `api.open-meteo.com` while the CLI runs.
+
+**Example prompts** (include a place so the model can fetch conditions):
+
+```bash
+make run ARGS="Casual outfit for today in Mexico City"
+make run ARGS="What should I wear to work in Oslo this afternoon?"
+```
+
+If the prompt does not imply a location, the model may skip the weather tool and pick a `weather` value from context alone.
 
 ## Development commands
 

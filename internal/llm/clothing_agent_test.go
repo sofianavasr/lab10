@@ -196,6 +196,7 @@ Final Answer: [{"id":1,"name":"T-Shirt","price":19.99,"color":"white","category"
 		name      string
 		model     *fakeModel
 		repo      *repoStub
+		weather   WeatherClient
 		wantItems int
 		wantErr   string
 	}{
@@ -203,18 +204,21 @@ Final Answer: [{"id":1,"name":"T-Shirt","price":19.99,"color":"white","category"
 			name:      "parses valid JSON array from Final Answer",
 			model:     &fakeModel{responses: []string{validFinalAnswer}},
 			repo:      &repoStub{},
+			weather:   &weatherClientStub{},
 			wantItems: 3,
 		},
 		{
 			name:    "returns error when model fails",
 			model:   &fakeModel{err: errors.New("llm unavailable")},
 			repo:    &repoStub{},
+			weather: &weatherClientStub{},
 			wantErr: "agent run",
 		},
 		{
 			name:    "returns error when Final Answer contains invalid JSON",
 			model:   &fakeModel{responses: []string{"Thought: done.\nFinal Answer: not-a-json-array"}},
 			repo:    &repoStub{},
+			weather: &weatherClientStub{},
 			wantErr: "parse agent result",
 		},
 	}
@@ -224,7 +228,7 @@ Final Answer: [{"id":1,"name":"T-Shirt","price":19.99,"color":"white","category"
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			agent, err := newClothingAgentWithModel(tt.model, tt.repo)
+			agent, err := newClothingAgentWithModel(tt.model, tt.repo, tt.weather)
 			if err != nil {
 				t.Fatalf("unexpected error building agent: %v", err)
 			}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"os"
 	"strings"
 
@@ -18,8 +19,8 @@ import (
 
 var buildRecommender = defaultBuildRecommender
 var openDBTX = defaultOpenDBTX
-var newClothingAgent = func(apiKey, model string, repo llm.ClothingQuerier) (llm.Recommender, error) {
-	return llm.NewClothingAgent(apiKey, model, repo)
+var newClothingAgent = func(apiKey, model string, repo llm.ClothingQuerier, httpClient *http.Client) (llm.Recommender, error) {
+	return llm.NewClothingAgent(apiKey, model, repo, httpClient)
 }
 
 func main() {
@@ -54,7 +55,7 @@ func defaultBuildRecommender(ctx context.Context, cfg config.Config) (llm.Recomm
 	queries := db.New(conn)
 	repo := repository.NewClothesRepository(queries)
 
-	agent, err := newClothingAgent(cfg.OpenRouterKey, cfg.OpenRouterModel, repo)
+	agent, err := newClothingAgent(cfg.OpenRouterKey, cfg.OpenRouterModel, repo, &http.Client{})
 	if err != nil {
 		cleanup()
 		return nil, nil, fmt.Errorf("build clothing agent: %w", err)

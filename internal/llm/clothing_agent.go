@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/tmc/langchaingo/agents"
@@ -82,6 +83,7 @@ func (t *ClothesTool) Call(ctx context.Context, input string) (string, error) {
 
 const agentSystemPrompt = `You are a clothing recommendation assistant.
 Given a user's request, find one clothing item for each of three categories: tops, bottoms, and shoes.
+If the user mentions a city or location, use the get_weather tool first to determine the current weather condition, then use that condition when searching for clothing.
 Use the search_clothing tool for each category.
 Always infer the most appropriate style and weather from the user's request.
 If no style or weather is mentioned, pick reasonable defaults (e.g. style="casual", weather="hot").
@@ -92,7 +94,7 @@ type ClothingAgent struct {
 	executor *agents.Executor
 }
 
-func NewClothingAgent(apiKey, model string, repo ClothingQuerier) (*ClothingAgent, error) {
+func NewClothingAgent(apiKey, model string, repo ClothingQuerier, httpClient *http.Client) (*ClothingAgent, error) {
 	client, err := openai.New(
 		openai.WithToken(apiKey),
 		openai.WithModel(model),
@@ -101,11 +103,15 @@ func NewClothingAgent(apiKey, model string, repo ClothingQuerier) (*ClothingAgen
 	if err != nil {
 		return nil, fmt.Errorf("create openrouter model: %w", err)
 	}
-	return newClothingAgentWithModel(client, repo)
+	weatherClient := &OpenMeteoClient{httpClient: httpClient}
+	return newClothingAgentWithModel(client, repo, weatherClient)
 }
 
-func newClothingAgentWithModel(model llms.Model, repo ClothingQuerier) (*ClothingAgent, error) {
-	agentTools := []lctools.Tool{&ClothesTool{repo: repo}}
+func newClothingAgentWithModel(model llms.Model, repo ClothingQuerier, weather WeatherClient) (*ClothingAgent, error) {
+	agentTools := []lctools.Tool{
+		&ClothesTool{repo: repo},
+		&WeatherTool{client: weather},
+	}
 	executor, err := agents.Initialize(
 		model,
 		agentTools,
